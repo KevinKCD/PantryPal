@@ -6,34 +6,6 @@ import { Filter, MoreVertical, Scan, X, Minus, Plus } from "lucide-react";
 import { PantryItem, ScannedItem } from "@/types";
 import BarcodeScanner from "./BarcodeScanner";
 
-// Mock barcode database
-const MOCK_BARCODE_DB: Record<string, ScannedItem> = {
-  "123456789012": {
-    barcode: "123456789012",
-    name: "Organic Whole Milk",
-    category: "Dairy",
-    image: "https://picsum.photos/seed/milk/100/100",
-  },
-  "987654321098": {
-    barcode: "987654321098",
-    name: "Greek Yogurt",
-    category: "Dairy",
-    image: "https://picsum.photos/seed/yogurt/100/100",
-  },
-  "456789012345": {
-    barcode: "456789012345",
-    name: "Whole Wheat Bread",
-    category: "Bakery",
-    image: "https://picsum.photos/seed/bread/100/100",
-  },
-  "789012345678": {
-    barcode: "789012345678",
-    name: "Extra Virgin Olive Oil",
-    category: "Oils",
-    image: "https://picsum.photos/seed/oil/100/100",
-  },
-};
-
 const Pantry: React.FC = () => {
   const [items, setItems] = useState<PantryItem[]>([
     {
@@ -77,17 +49,45 @@ const Pantry: React.FC = () => {
   const [scannedItem, setScannedItem] = useState<ScannedItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleScanSuccess = (decodedText: string) => {
-    const item = MOCK_BARCODE_DB[decodedText];
-    if (item) {
-      setScannedItem(item);
-      setIsScannerOpen(false);
-      setError(null);
-    } else {
-      setError(
-        `Barcode ${decodedText} not found in database. Try 123456789012 or 987654321098 for demo.`,
+  const handleScanSuccess = async (decodedText: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
       );
+      const data = await response.json();
+
+      if (data.status === 1 && data.product) {
+        const product = data.product;
+        const item: ScannedItem = {
+          barcode: decodedText,
+          name:
+            product.product_name ||
+            product.product_name_en ||
+            "Unknown Product",
+          category: product.categories?.split(",")[0] || "Uncategorized",
+          image:
+            product.image_url ||
+            product.image_front_url ||
+            `https://picsum.photos/seed/${decodedText}/100/100`,
+        };
+        setScannedItem(item);
+        setIsScannerOpen(false);
+      } else {
+        setError(
+          `Product with barcode ${decodedText} not found in Open Food Facts database.`,
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching product:", err);
+      setError(
+        "Failed to connect to Open Food Facts database. Please check your connection.",
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -151,7 +151,17 @@ const Pantry: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 Scan Barcode
               </h3>
-              <BarcodeScanner onScanSuccess={handleScanSuccess} />
+              <div className="relative">
+                <BarcodeScanner onScanSuccess={handleScanSuccess} />
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-xl">
+                    <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-orange-600 font-bold">
+                      Fetching product details...
+                    </p>
+                  </div>
+                )}
+              </div>
               {error && (
                 <p className="mt-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
                   {error}
