@@ -1,5 +1,5 @@
 {
   "name": "PantryPal",
   "description": "A modern kitchen management app with dashboard, recipes, pantry, and meal planning.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["camera"]
 }

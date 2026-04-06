@@ -1,18 +1,110 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'motion/react';
-import { Filter, MoreVertical } from 'lucide-react';
-import { PantryItem } from '@/types';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Filter, MoreVertical, Scan, X, Minus, Plus } from "lucide-react";
+import { PantryItem, ScannedItem } from "@/types";
+import BarcodeScanner from "./BarcodeScanner";
+
+// Mock barcode database
+const MOCK_BARCODE_DB: Record<string, ScannedItem> = {
+  "123456789012": {
+    barcode: "123456789012",
+    name: "Organic Whole Milk",
+    category: "Dairy",
+    image: "https://picsum.photos/seed/milk/100/100",
+  },
+  "987654321098": {
+    barcode: "987654321098",
+    name: "Greek Yogurt",
+    category: "Dairy",
+    image: "https://picsum.photos/seed/yogurt/100/100",
+  },
+  "456789012345": {
+    barcode: "456789012345",
+    name: "Whole Wheat Bread",
+    category: "Bakery",
+    image: "https://picsum.photos/seed/bread/100/100",
+  },
+  "789012345678": {
+    barcode: "789012345678",
+    name: "Extra Virgin Olive Oil",
+    category: "Oils",
+    image: "https://picsum.photos/seed/oil/100/100",
+  },
+};
 
 const Pantry: React.FC = () => {
-  const items: PantryItem[] = [
-    { id: 1, name: 'All-Purpose Flour', category: 'Baking', quantity: '2.5 kg', status: 'Full' },
-    { id: 2, name: 'Olive Oil', category: 'Oils', quantity: '500 ml', status: 'Low' },
-    { id: 3, name: 'Basmati Rice', category: 'Grains', quantity: '1 kg', status: 'Medium' },
-    { id: 4, name: 'Tomato Paste', category: 'Canned', quantity: '3 cans', status: 'Full' },
-    { id: 5, name: 'Sea Salt', category: 'Spices', quantity: '200g', status: 'Full' },
-  ];
+  const [items, setItems] = useState<PantryItem[]>([
+    {
+      id: 1,
+      name: "All-Purpose Flour",
+      category: "Baking",
+      quantity: "2.5 kg",
+      status: "Full",
+    },
+    {
+      id: 2,
+      name: "Olive Oil",
+      category: "Oils",
+      quantity: "500 ml",
+      status: "Low",
+    },
+    {
+      id: 3,
+      name: "Basmati Rice",
+      category: "Grains",
+      quantity: "1 kg",
+      status: "Medium",
+    },
+    {
+      id: 4,
+      name: "Tomato Paste",
+      category: "Canned",
+      quantity: "3 cans",
+      status: "Full",
+    },
+    {
+      id: 5,
+      name: "Sea Salt",
+      category: "Spices",
+      quantity: "200g",
+      status: "Full",
+    },
+  ]);
+
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannedItem, setScannedItem] = useState<ScannedItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleScanSuccess = (decodedText: string) => {
+    const item = MOCK_BARCODE_DB[decodedText];
+    if (item) {
+      setScannedItem(item);
+      setIsScannerOpen(false);
+      setError(null);
+    } else {
+      setError(
+        `Barcode ${decodedText} not found in database. Try 123456789012 or 987654321098 for demo.`,
+      );
+    }
+  };
+
+  const addItemToPantry = () => {
+    if (scannedItem) {
+      const newItem: PantryItem = {
+        id: Date.now(),
+        name: scannedItem.name,
+        category: scannedItem.category,
+        quantity: `${quantity} unit${quantity > 1 ? "s" : ""}`,
+        status: "Full",
+      };
+      setItems([newItem, ...items]);
+      setScannedItem(null);
+      setQuantity(1);
+    }
+  };
 
   return (
     <motion.div
@@ -23,6 +115,13 @@ const Pantry: React.FC = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-gray-900">Pantry</h2>
         <div className="flex space-x-2">
+          <button
+            onClick={() => setIsScannerOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <Scan size={20} />
+            <span>Scan Barcode</span>
+          </button>
           <button className="p-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
             <Filter size={20} />
           </button>
@@ -32,29 +131,154 @@ const Pantry: React.FC = () => {
         </div>
       </div>
 
+      {/* Barcode Scanner Modal */}
+      <AnimatePresence>
+        {isScannerOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl relative"
+            >
+              <button
+                onClick={() => setIsScannerOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                Scan Barcode
+              </h3>
+              <BarcodeScanner onScanSuccess={handleScanSuccess} />
+              {error && (
+                <p className="mt-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                  {error}
+                </p>
+              )}
+              <p className="mt-4 text-sm text-gray-500 text-center italic">
+                Tip: Point your camera at a product barcode.
+              </p>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Scanned Item Details Modal */}
+      <AnimatePresence>
+        {scannedItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            >
+              <div className="flex items-start space-x-4 mb-6">
+                <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <img
+                    src={scannedItem.image}
+                    alt={scannedItem.name}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {scannedItem.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {scannedItem.category}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Barcode: {scannedItem.barcode}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-700">Quantity</span>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-2 rounded-full border border-gray-200 hover:bg-gray-50 text-gray-600"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="text-lg font-bold w-8 text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-2 rounded-full border border-gray-200 hover:bg-gray-50 text-gray-600"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={() => setScannedItem(null)}
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={addItemToPantry}
+                    className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                  >
+                    Add to Pantry
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-6 py-4 text-sm font-semibold text-gray-900">Item Name</th>
-              <th className="px-6 py-4 text-sm font-semibold text-gray-900">Category</th>
-              <th className="px-6 py-4 text-sm font-semibold text-gray-900">Quantity</th>
-              <th className="px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
+              <th className="px-6 py-4 text-sm font-semibold text-gray-900">
+                Item Name
+              </th>
+              <th className="px-6 py-4 text-sm font-semibold text-gray-900">
+                Category
+              </th>
+              <th className="px-6 py-4 text-sm font-semibold text-gray-900">
+                Quantity
+              </th>
+              <th className="px-6 py-4 text-sm font-semibold text-gray-900">
+                Status
+              </th>
               <th className="px-6 py-4 text-sm font-semibold text-gray-900"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {items.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{item.category}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{item.quantity}</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  {item.name}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {item.category}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {item.quantity}
+                </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    item.status === 'Full' ? 'bg-green-100 text-green-700' :
-                    item.status === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      item.status === "Full"
+                        ? "bg-green-100 text-green-700"
+                        : item.status === "Medium"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                    }`}
+                  >
                     {item.status}
                   </span>
                 </td>
