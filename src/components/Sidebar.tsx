@@ -1,22 +1,20 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  LayoutDashboard,
-  UtensilsCrossed,
-  Refrigerator,
-  CalendarDays,
-  Settings,
-} from "lucide-react";
-import { MenuItem, NavProps } from "@/types";
+import React from 'react';
+import { LayoutDashboard, UtensilsCrossed, Refrigerator, CalendarDays, Settings } from 'lucide-react';
+import { MenuItem, NavProps } from '@/types';
+import { useAuth } from './FirebaseProvider';
+import { logout } from '@/lib/firebase';
+import { LogOut } from 'lucide-react';
 
 const Sidebar: React.FC<NavProps> = ({ activeTab, setActiveTab }) => {
+  const { user } = useAuth();
   const menuItems: MenuItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "recipes", label: "Recipes", icon: UtensilsCrossed },
-    { id: "pantry", label: "Pantry", icon: Refrigerator },
-    { id: "plans", label: "Plans", icon: CalendarDays },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'recipes', label: 'Recipes', icon: UtensilsCrossed },
+    { id: 'pantry', label: 'Pantry', icon: Refrigerator },
+    { id: 'plans', label: 'Plans', icon: CalendarDays },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
@@ -35,8 +33,8 @@ const Sidebar: React.FC<NavProps> = ({ activeTab, setActiveTab }) => {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? "bg-orange-50 text-orange-600"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
                 <Icon size={20} />
@@ -46,17 +44,26 @@ const Sidebar: React.FC<NavProps> = ({ activeTab, setActiveTab }) => {
           })}
         </nav>
         <div className="p-4 border-t border-gray-100">
-          <div className="flex items-center space-x-3 px-4 py-2">
-            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
-              U
-            </div>
+          <div className="flex items-center space-x-3 px-4 py-2 mb-2">
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
+                {user?.displayName?.[0] || 'U'}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                User Name
-              </p>
-              <p className="text-xs text-gray-500 truncate">user@example.com</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.displayName || 'User'}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
+          <button 
+            onClick={logout}
+            className="w-full flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </div>
       </div>
 
@@ -70,13 +77,10 @@ const Sidebar: React.FC<NavProps> = ({ activeTab, setActiveTab }) => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center justify-center p-2 rounded-lg transition-colors min-w-[64px] ${
-                isActive ? "text-orange-600" : "text-gray-400"
+                isActive ? 'text-orange-600' : 'text-gray-400'
               }`}
             >
-              <Icon
-                size={24}
-                className={isActive ? "scale-110 transition-transform" : ""}
-              />
+              <Icon size={24} className={isActive ? 'scale-110 transition-transform' : ''} />
               <span className="text-[10px] mt-1 font-medium">{item.label}</span>
             </button>
           );

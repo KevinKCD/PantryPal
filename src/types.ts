@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 
-export type TabId = "dashboard" | "recipes" | "pantry" | "plans" | "settings";
+export type TabId = 'dashboard' | 'recipes' | 'pantry' | 'plans' | 'settings';
 
 export interface Recipe {
   id: number;
   title: string;
   time: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: 'Easy' | 'Medium' | 'Hard';
   image: string;
 }
 
@@ -18,11 +18,15 @@ export interface ScannedItem {
 }
 
 export interface PantryItem {
-  id: number;
+  id: string;
   name: string;
   category: string;
   quantity: string;
-  status: "Full" | "Medium" | "Low";
+  status: 'Full' | 'Medium' | 'Low';
+  uid: string;
+  createdAt: any;
+  barcode?: string;
+  image?: string;
 }
 
 export interface MenuItem {

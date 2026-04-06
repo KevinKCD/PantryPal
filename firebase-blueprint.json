@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Information about the user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID" },
+        "displayName": { "type": "string", "description": "The user's display name" },
+        "email": { "type": "string", "description": "The user's email address" },
+        "photoURL": { "type": "string", "description": "The user's profile photo URL" }
+      },
+      "required": ["uid", "email"]
+    },
+    "PantryItem": {
+      "title": "Pantry Item",
+      "description": "An item stored in the user's pantry",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the item" },
+        "category": { "type": "string", "description": "The category of the item" },
+        "quantity": { "type": "string", "description": "The quantity of the item" },
+        "status": { "type": "string", "enum": ["Full", "Medium", "Low"], "description": "The status of the item" },
+        "barcode": { "type": "string", "description": "The barcode of the item" },
+        "image": { "type": "string", "description": "The image URL of the item" },
+        "uid": { "type": "string", "description": "The user ID of the owner" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the item was added" }
+      },
+      "required": ["name", "category", "quantity", "status", "uid", "createdAt"]
+    },
+    "Recipe": {
+      "title": "Recipe",
+      "description": "A recipe saved by the user",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the recipe" },
+        "time": { "type": "string", "description": "The preparation time" },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"], "description": "The difficulty level" },
+        "image": { "type": "string", "description": "The image URL of the recipe" },
+        "uid": { "type": "string", "description": "The user ID of the owner" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the recipe was saved" }
+      },
+      "required": ["title", "time", "difficulty", "image", "uid", "createdAt"]
+    },
+    "MealPlan": {
+      "title": "Meal Plan",
+      "description": "A planned meal for a specific day and time",
+      "type": "object",
+      "properties": {
+        "day": { "type": "string", "description": "The day of the week" },
+        "meal": { "type": "string", "description": "The type of meal (Breakfast, Lunch, Dinner)" },
+        "recipeId": { "type": "string", "description": "The ID of the planned recipe" },
+        "recipeTitle": { "type": "string", "description": "The title of the planned recipe" },
+        "uid": { "type": "string", "description": "The user ID of the owner" },
+        "date": { "type": "string", "format": "date", "description": "The date of the meal" }
+      },
+      "required": ["day", "meal", "uid", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/pantry": {
+      "schema": "PantryItem",
+      "description": "Collection of all pantry items"
+    },
+    "/recipes": {
+      "schema": "Recipe",
+      "description": "Collection of all saved recipes"
+    },
+    "/mealPlans": {
+      "schema": "MealPlan",
+      "description": "Collection of all meal plans"
+    }
+  }
+}

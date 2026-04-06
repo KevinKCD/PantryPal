@@ -1,28 +1,29 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
-import Dashboard from "@/components/Dashboard";
-import Recipes from "@/components/Recipes";
-import Pantry from "@/components/Pantry";
-import Plans from "@/components/Plans";
-import Settings from "@/components/Settings";
-import { TabId } from "@/types";
+import { useState } from 'react';
+import Sidebar from '@/components/Sidebar';
+import Dashboard from '@/components/Dashboard';
+import Recipes from '@/components/Recipes';
+import Pantry from '@/components/Pantry';
+import Plans from '@/components/Plans';
+import Settings from '@/components/Settings';
+import { TabId } from '@/types';
+import { FirebaseProvider } from '@/components/FirebaseProvider';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
 
   const renderContent = () => {
     switch (activeTab) {
-      case "dashboard":
+      case 'dashboard':
         return <Dashboard />;
-      case "recipes":
+      case 'recipes':
         return <Recipes />;
-      case "pantry":
+      case 'pantry':
         return <Pantry />;
-      case "plans":
+      case 'plans':
         return <Plans />;
-      case "settings":
+      case 'settings':
         return <Settings />;
       default:
         return <Dashboard />;
@@ -30,11 +31,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 pb-24 lg:pb-12">
-        <div className="max-w-7xl mx-auto">{renderContent()}</div>
-      </main>
-    </div>
+    <FirebaseProvider>
+      <div className="flex flex-col lg:flex-row h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 pb-24 lg:pb-12">
+          <div className="max-w-7xl mx-auto">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
+    </FirebaseProvider>
   );
 }
