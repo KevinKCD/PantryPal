@@ -112,20 +112,21 @@ const Pantry: React.FC = () => {
       animate={{ opacity: 1, x: 0 }}
       className="space-y-6"
     >
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold text-gray-900">Pantry</h2>
-        <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Pantry</h2>
+        <div className="flex w-full sm:w-auto space-x-2">
           <button
             onClick={() => setIsScannerOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
           >
             <Scan size={20} />
-            <span>Scan Barcode</span>
+            <span className="hidden sm:inline">Scan Barcode</span>
+            <span className="sm:hidden text-sm">Scan</span>
           </button>
           <button className="p-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
             <Filter size={20} />
           </button>
-          <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+          <button className="flex-1 sm:flex-none bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm sm:text-base">
             Add Item
           </button>
         </div>
@@ -238,7 +239,43 @@ const Pantry: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center"
+          >
+            <div>
+              <h3 className="font-bold text-gray-900">{item.name}</h3>
+              <div className="flex items-center space-x-2 mt-1">
+                <span className="text-xs text-gray-500">{item.category}</span>
+                <span className="text-xs text-gray-300">•</span>
+                <span className="text-xs text-gray-500">{item.quantity}</span>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <span
+                className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  item.status === "Full"
+                    ? "bg-green-100 text-green-700"
+                    : item.status === "Medium"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
+                }`}
+              >
+                {item.status}
+              </span>
+              <button className="text-gray-400">
+                <MoreVertical size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
