@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'motion/react';
 import { Filter, MoreVertical } from 'lucide-react';
-import { PantryItem } from '../types';
+import { PantryItem } from '@/types';
 
 const Pantry: React.FC = () => {
   const items: PantryItem[] = [

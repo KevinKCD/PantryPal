@@ -1,18 +1,15 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+'use client';
 
 import { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import Dashboard from './components/Dashboard';
-import Recipes from './components/Recipes';
-import Pantry from './components/Pantry';
-import Plans from './components/Plans';
-import Settings from './components/Settings';
-import { TabId } from './types';
+import Sidebar from '@/components/Sidebar';
+import Dashboard from '@/components/Dashboard';
+import Recipes from '@/components/Recipes';
+import Pantry from '@/components/Pantry';
+import Plans from '@/components/Plans';
+import Settings from '@/components/Settings';
+import { TabId } from '@/types';
 
-export default function App() {
+export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
 
   const renderContent = () => {
@@ -43,4 +40,3 @@ export default function App() {
     </div>
   );
 }
-

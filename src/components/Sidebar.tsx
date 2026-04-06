@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
 import { LayoutDashboard, UtensilsCrossed, Refrigerator, CalendarDays, Settings } from 'lucide-react';
-import { MenuItem, NavProps } from '../types';
+import { MenuItem, NavProps } from '@/types';
 
 const Sidebar: React.FC<NavProps> = ({ activeTab, setActiveTab }) => {
   const menuItems: MenuItem[] = [

@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'motion/react';
 import { Search, Plus } from 'lucide-react';
-import { Recipe } from '../types';
+import { Recipe } from '@/types';
 
 const Recipes: React.FC = () => {
   const recipes: Recipe[] = [
